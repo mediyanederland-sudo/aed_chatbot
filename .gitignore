@@ -1,0 +1,42 @@
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Runtime records and catalog caches
+/backend/data/
+*.log
+
+# Generated plugin distributions and Python caches
+/wordpress-plugin/dist/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+
+# Internal development material is not part of the handoff
+/backend/tests/
+/evals/
+/improvement_reports/
+/docs/
+/AED-Quiz-Help/
+/.claude/
+/.codex/
+/.agents/
+/.code-review-graph/
+/client-delivery/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp

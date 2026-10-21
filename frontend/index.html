@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AED Leader — Test Page</title>
+    <style>
+        /* Simulate a basic page so we can test the widget overlay */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        .test-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .test-page h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+        .test-page p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .test-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 32px;
+            font-size: 14px;
+            color: #856404;
+        }
+    </style>
+    <link rel="stylesheet" id="aed-css">
+    <script>document.getElementById('aed-css').href='/static/css/chatbot.css?v='+Date.now();</script>
+</head>
+<body>
+
+<div class="test-page">
+    <div class="test-banner">
+        This is a test page simulating aedleader.com. The chat widget floats in the bottom-right corner.
+    </div>
+    <h1>AED Leader — Automated External Defibrillators</h1>
+    <p>Welcome to AED Leader, your trusted source for AED equipment. We carry products from top brands including Zoll, Philips, Defibtech, HeartSine, Cardiac Science, and Stryker.</p>
+    <p>Browse our selection of AEDs, replacement pads, batteries, cabinets, and accessories. All products are FDA approved and come with manufacturer warranties.</p>
+    <p>Scroll down to see more content and test the chat widget behavior...</p>
+    <div style="height: 2000px;"></div>
+</div>
+
+<!-- AED Leader Chatbot Widget -->
+<div id="aed-chatbot-root" aria-label="AED Leader AI Chatbot" role="complementary">
+
+    <!-- Floating toggle button -->
+    <button id="aed-chat-toggle" aria-label="Open chatbot" aria-expanded="false">
+        <span class="aed-icon-chat" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+                <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+            </svg>
+        </span>
+        <span class="aed-icon-close" aria-hidden="true" style="display:none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </span>
+        <span class="aed-btn-label">Chat with us</span>
+    </button>
+
+    <!-- Proactive teaser bubble — small nudge above the toggle (no full-panel takeover) -->
+    <div id="aed-teaser" class="aed-teaser" hidden>
+        <button class="aed-teaser-dismiss" aria-label="Dismiss">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </button>
+        <div class="aed-teaser-body" role="button" tabindex="0" aria-label="Open chat">
+            <div class="aed-teaser-avatar" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
+            </div>
+            <div class="aed-teaser-text">Have questions about AEDs? Ask me here!</div>
+        </div>
+    </div>
+
+    <!-- Chat panel -->
+    <div id="aed-chat-panel" role="dialog" aria-modal="true" aria-label="AED Leader Chatbot" hidden>
+
+        <!-- Header -->
+        <div class="aed-header">
+            <div class="aed-header-info">
+                <div class="aed-header-avatar" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="aed-header-name">Rescue Rita</div>
+                    <div class="aed-header-status"><span class="aed-status-dot"></span> <span id="aed-header-status-text">Beta — answers may vary</span></div>
+                </div>
+            </div>
+            <div class="aed-header-actions">
+                <button id="aed-reset" class="aed-reset-btn" aria-label="Start over" title="Start over">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                </button>
+                <button id="aed-close" class="aed-header-close" aria-label="Close chatbot">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="aed-messages" class="aed-messages" role="log" aria-live="polite" aria-label="Chat messages"></div>
+
+        <!-- Typing indicator -->
+        <div id="aed-typing" class="aed-typing" hidden aria-label="Rescue Rita is typing...">
+            <div class="aed-typing-avatar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
+            </div>
+            <div class="aed-typing-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <!-- Suggestion chips — populated from window.AEDChatbotConfig.chips -->
+        <div id="aed-chips" class="aed-chips"></div>
+
+        <!-- Input area -->
+        <div class="aed-input-area">
+            <textarea id="aed-input" class="aed-input"
+                      placeholder="Ask about AEDs, accessories, or pricing..."
+                      rows="1"
+                      aria-label="Type a message"
+                      maxlength="2000"></textarea>
+            <button id="aed-send" class="aed-send-btn" aria-label="Send message">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="aed-footer">
+            <span>Powered by <strong>AED Leader</strong> &middot; Press Enter to send</span>
+            <button id="aed-debug-toggle" class="aed-debug-toggle" title="Toggle debug (Ctrl+D)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Debug panel -->
+        <div id="aed-debug-panel" class="aed-debug-panel" hidden>
+            <div class="aed-debug-header">
+                <span>Pipeline Debug</span>
+                <span id="aed-debug-session" class="aed-debug-dim">No session</span>
+            </div>
+            <div id="aed-debug-content" class="aed-debug-content">
+                <div class="aed-debug-empty">Send a message to see pipeline trace</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Config — same shape as wp_localize_script would produce
+    window.AEDChatbotConfig = {
+        // Multisite test switch: open index.html?site=responseready to drive
+        // any tenant through the same backend (empty = aedleader).
+        site: new URLSearchParams(location.search).get('site') || '',
+        // Test-page branding per tenant (real sites get this from their own
+        // plugin zip — this map only keeps LOCAL testing honest).
+        _brands: { aedleader: 'AED Leader', responseready: 'Response Ready', cpr1: 'CPR1',
+                   mdsimedical: 'MDSI', aedtotalsolution: 'AED Total Solution' },
+        backendUrl: '',
+        primaryColor: '#0B5ED7',
+        accentColor: '#198754',
+        position: 'right',
+        greeting: "Hi, I'm Rescue Rita — your AED Leader assistant. I can help you find the right AED, compare products, and answer questions about defibrillators.\n\nWhat are you looking for today? And in case we get disconnected, feel free to share your name and email here.",
+        // betaNotice: "Beta — answers may vary"  // override default header status text; set false to hide the row entirely
+        // showTeaser: true,  // uncomment to test the proactive teaser bubble (WP plugin exposes this as a setting)
+        // teaserText: "Have questions about AEDs? Ask me here!",  // teaser bubble text
+        zIndex: 9999,
+        //  Quick-start chips
+        // Each chip: { id, label, action: 'prompt'|'url'|'info', payload }
+        //   prompt:  payload = string sent to /chat as the user message
+        //   url:     payload = { url, target? } — opens in new tab
+        //   info:    payload = { title, lines[], cta?: { label, url } }
+        // The id MUST match /^[A-Za-z0-9_-]{1,64}$/ — used as event chip_id.
+        chips: [
+            {
+                id: 'find_aed',
+                label: 'Product assistant',
+                action: 'prompt',
+                payload: 'Help me find the right AED for my needs'
+            },
+            {
+                id: 'inquiry',
+                label: 'Submit an inquiry',
+                action: 'info',
+                payload: {
+                    title: 'Submit an Inquiry',
+                    lines: [
+                        "Need bulk pricing, a compliance program, or a custom package?",
+                        "Send us the details and our team will respond within 1 business day."
+                    ],
+                    cta: { label: 'Open inquiry form', url: 'https://www.aedleader.com/submit-an-inquiry/' }
+                }
+            },
+            {
+                id: 'support',
+                label: 'Contact support',
+                action: 'info',
+                payload: {
+                    title: 'Contact AED Leader',
+                    lines: [
+                        '📞 855-888-2771',
+                        '✉️ info@aedleader.com',
+                        'Hours: Mon to Fri, 8:00 AM to 4:30 PM PST'
+                    ]
+                }
+            },
+            {
+                id: 'faq',
+                label: 'FAQ',
+                action: 'prompt',
+                payload: 'What questions do most customers ask before buying an AED?'
+            }
+        ]
+    };
+</script>
+<script>var s=document.createElement('script');s.src='/static/js/chatbot.js?v='+Date.now();document.body.appendChild(s);</script>
+
+<script>
+    // Rebrand the static test page + greeting for the selected tenant.
+    (function () {
+        var site = window.AEDChatbotConfig.site || 'aedleader';
+        var brand = window.AEDChatbotConfig._brands[site] || 'AED Leader';
+        if (brand !== 'AED Leader') {
+            document.title = brand + ' — Test Page';
+            window.AEDChatbotConfig.greeting = window.AEDChatbotConfig.greeting.replace('your AED Leader assistant', 'your ' + brand + ' assistant');
+            document.querySelectorAll('h1, p, span, div[aria-label]').forEach(function (el) {
+                if (el.children.length === 0 && el.textContent.indexOf('AED Leader') !== -1) {
+                    el.textContent = el.textContent.split('AED Leader').join(brand);
+                }
+            });
+            var powered = document.querySelector('.aed-footer strong, strong');
+            document.querySelectorAll('strong').forEach(function (el) {
+                if (el.textContent === 'AED Leader') el.textContent = brand;
+            });
+        }
+
+
+
+
+        if (site === 'cpr1') {
+            window.AEDChatbotConfig.greeting = "Hi, I'm Rescue Rita — your CPR1 assistant. I can help you book CPR, AED & First Aid training for your team, find the right AED, and answer your questions.\n\nAre you interested in training or AED equipment today? And in case we get disconnected, feel free to share your name and email here.";
+            var chips = window.AEDChatbotConfig.chips;
+            chips[0].label = 'AED equipment';
+            chips.unshift({
+                id: 'find_course',
+                label: 'CPR/First-Aid training',
+                action: 'prompt',
+                payload: 'Help me find the right CPR/First-Aid training course for my team'
+            });
+            chips.forEach(function (c) {
+                if (c.id === 'faq') c.payload = 'What do most customers ask before booking training or buying an AED?';
+                if (c.id === 'support') c.payload = {
+                    title: 'Contact CPR1',
+                    lines: ['📞 858-665-8444', '✉️ info@cpr1.com', 'Hours: Mon to Fri, 8:00 AM to 4:30 PM PST']
+                };
+            });
+            var inp = document.getElementById('aed-input');
+            if (inp) inp.placeholder = 'Ask about training courses, AEDs, or pricing...';
+            var teaser = document.querySelector('.aed-teaser-text');
+            if (teaser) teaser.textContent = 'Questions about CPR training or AEDs? Ask me here!';
+        }
+
+
+
+        var _bots = { aedleader: 'Rescue Rita', responseready: 'Preparedness Paige',
+                      cpr1: 'Coach Casey', mdsimedical: 'Rescue Rita',
+                      aedtotalsolution: 'Compliance Claire' };
+        var botName = _bots[site] || 'Rescue Rita';
+        if (botName !== 'Rescue Rita') {
+            window.AEDChatbotConfig.greeting =
+                window.AEDChatbotConfig.greeting.split('Rescue Rita').join(botName);
+            var headerName = document.querySelector('.aed-header-name');
+            if (headerName) headerName.textContent = botName;
+            var typing = document.getElementById('aed-typing');
+            if (typing) typing.setAttribute('aria-label', botName + ' is typing...');
+        }
+    })();
+</script>
+</body>
+</html>

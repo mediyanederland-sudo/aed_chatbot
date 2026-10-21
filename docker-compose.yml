@@ -1,0 +1,37 @@
+services:
+  chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mediyabv/aedleader-chatbot:latest
+    container_name: aedleader-chatbot
+    restart: unless-stopped
+    ports:
+      - "${HOST_BIND_IP:-127.0.0.1}:8003:8003"
+    volumes:
+      - ./backend/data:/app/backend/data
+      - fastembed_cache:/home/appuser/.cache/fastembed
+    env_file:
+      - .env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8003
+    init: true
+    ulimits:
+      nofile:
+        soft: 8192
+        hard: 8192
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.create_connection(('127.0.0.1',8003),2); s.close()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  fastembed_cache:

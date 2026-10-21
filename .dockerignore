@@ -1,0 +1,18 @@
+# Only application source and the entrypoint are needed by the Docker build.
+*
+!Dockerfile
+!entrypoint.sh
+!backend/
+!backend/**
+!frontend/
+!frontend/**
+
+# Never send runtime records or local Python environments to the builder.
+backend/data/
+backend/tests/
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/venv/
+**/.env
+**/.env.*

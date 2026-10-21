@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AED Leader Admin</title>
+<style>
+  /*
+     AED Leader Admin Dashboard — variables verbatim from frontend/css/chatbot.css
+     so the dashboard matches the widget exactly. System font stack, no
+     Google Fonts roundtrip, same blue (#0B5ED7), same 16px radius family.
+ */
+  :root {
+    --aed-primary:        #0B5ED7;
+    --aed-primary-dk:     #0950b8;
+    --aed-primary-light:  rgba(11, 94, 215, 0.08);
+    --aed-primary-glow:   rgba(11, 94, 215, 0.18);
+    --aed-accent:         #198754;
+    --aed-accent-dk:      #146c43;
+    --aed-accent-soft:    rgba(25, 135, 84, 0.12);
+    --aed-warn:           #d97706;
+    --aed-warn-soft:      rgba(217, 119, 6, 0.12);
+    --aed-sale:           #dc3545;
+    --aed-sale-bg:        rgba(220, 53, 69, 0.08);
+    --aed-black:          #1a1a1a;
+    --aed-text:           #1a1a1a;
+    --aed-text-secondary: #555;
+    --aed-muted:          #6b7280;
+    --aed-light:          #9ca3af;
+    --aed-bg:             #f5f6f8;
+    --aed-bg-alt:         #eef0f3;
+    --aed-card:           #ffffff;
+    --aed-border:         #e5e7eb;
+    --aed-border-mid:     #d1d5db;
+    --aed-radius:         16px;
+    --aed-radius-sm:      10px;
+    --aed-radius-pill:    50px;
+    --aed-shadow:         0 8px 32px rgba(0, 0, 0, 0.15);
+    --aed-shadow-sm:      0 2px 8px rgba(0, 0, 0, 0.08);
+    --aed-shadow-xs:      0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    background: var(--aed-bg);
+    color: var(--aed-text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /*  Header */
+  /* Solid blue, matches the chat panel header in the widget */
+  .header {
+    background: var(--aed-primary);
+    padding: 0 24px;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 16px rgba(11, 94, 215, 0.25);
+  }
+  .header-brand { display: flex; align-items: center; gap: 12px; color: #fff; }
+  .brand-mark {
+    width: 36px; height: 36px;
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+  }
+  .brand-mark svg { display: block; }
+  .header-title {
+    font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+    color: #fff;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.75);
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    padding-left: 12px;
+    margin-left: 4px;
+    font-weight: 500;
+  }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .badge-live {
+    padding: 5px 11px;
+    border-radius: var(--aed-radius-pill);
+    font-size: 11.5px; font-weight: 600;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+  }
+  .badge-live .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+  }
+  .btn {
+    padding: 7px 14px;
+    border-radius: var(--aed-radius-pill);
+    border: none; cursor: pointer;
+    font-family: inherit;
+    font-size: 12.5px; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn-header {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+  }
+  .btn-header:hover { background: rgba(255, 255, 255, 0.22); }
+  .btn-logout {
+    background: rgba(220, 53, 69, 0.20);
+    color: #ffd2d6;
+    border: 1px solid rgba(220, 53, 69, 0.35);
+  }
+  .btn-logout:hover { background: rgba(220, 53, 69, 0.30); color: #fff; }
+  .site-switch {
+    appearance: none; -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.30);
+    border-radius: var(--aed-radius-pill);
+    padding: 7px 30px 7px 14px;
+    font-family: inherit; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .site-switch:hover { background-color: rgba(255, 255, 255, 0.26); }
+  .site-switch option { color: var(--aed-text); background: var(--aed-card); }
+
+  /*  Tabs */
+  .nav-tabs {
+    display: flex;
+    background: var(--aed-card);
+    border-bottom: 1px solid var(--aed-border);
+    padding: 0 24px;
+  }
+  .nav-tab {
+    padding: 14px 20px;
+    background: transparent;
+    border: none; cursor: pointer;
+    font-family: inherit;
+    font-size: 13.5px; font-weight: 600;
+    color: var(--aed-muted);
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-tab:hover { color: var(--aed-text-secondary); }
+  .nav-tab.active {
+    color: var(--aed-primary);
+    border-bottom-color: var(--aed-primary);
+  }
+  .nav-tab .count {
+    background: var(--aed-bg-alt);
+    color: var(--aed-muted);
+    padding: 2px 9px;
+    border-radius: var(--aed-radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .nav-tab.active .count {
+    background: var(--aed-primary-light);
+    color: var(--aed-primary);
+  }
+
+  /*  Page */
+  .page { display: none; padding: 24px; }
+  .page.active { display: block; }
+
+  h2.section-title {
+    font-size: 12px;
+    color: var(--aed-muted);
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /*  Stat cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat {
+    background: var(--aed-card);
+    border: 1px solid var(--aed-border);
+    border-radius: var(--aed-radius);
+    padding: 20px 22px;
+    box-shadow: var(--aed-shadow-xs);
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .stat:hover {
+    box-shadow: var(--aed-shadow-sm);
+    transform: translateY(-1px);
+  }
+  .stat .label {
+    font-size: 11px;
+    color: var(--aed-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .stat .value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--aed-primary);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .stat .value.green { color: var(--aed-accent); }
+  .stat .value.warn  { color: var(--aed-warn); }
+  .stat .value.error { color: var(--aed-sale); }
+  .stat .sub {
+    font-size: 11.5px;
+    color: var(--aed-light);
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  .breakdown-card {
+    background: var(--aed-card);
+    border: 1px solid var(--aed-border);
+    border-radius: var(--aed-radius);
+    padding: 20px 22px;
+    box-shadow: var(--aed-shadow-xs);
+    margin-bottom: 16px;
+  }
+  .breakdown-card h3 {
+    font-size: 13px;
+    color: var(--aed-text);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .breakdown-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--aed-border);
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-key {
+    font-size: 13px;
+    color: var(--aed-text);
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  .breakdown-value {
+    font-size: 13px;
+    color: var(--aed-primary);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*  Sessions split view */
+  .split { display: flex; height: calc(100vh - 109px); margin: -24px; }
+  .session-side {
+    width: 380px; flex-shrink: 0;
+    border-right: 1px solid var(--aed-border);
+    background: var(--aed-card);
+    display: flex; flex-direction: column;
+  }
+  .session-side-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--aed-border);
+  }
+  .session-search {
+    width: 100%;
+    padding: 9px 14px;
+    border-radius: var(--aed-radius-sm);
+    border: 1.5px solid var(--aed-border);
+    background: var(--aed-bg);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--aed-text);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .session-search:focus {
+    border-color: var(--aed-primary);
+    box-shadow: 0 0 0 3px var(--aed-primary-light);
+  }
+  .session-filters {
+    display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .filter-pill {
+    padding: 5px 12px;
+    border-radius: var(--aed-radius-pill);
+    border: 1.5px solid var(--aed-border);
+    background: transparent;
+    color: var(--aed-muted);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .filter-pill:hover {
+    border-color: var(--aed-border-mid);
+    color: var(--aed-text-secondary);
+  }
+  .filter-pill.active {
+    background: var(--aed-primary);
+    color: #fff;
+    border-color: var(--aed-primary);
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
+  }
+
+  .session-list { flex: 1; overflow-y: auto; }
+  .session-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--aed-border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .session-item:hover { background: var(--aed-bg); }
+  .session-item.active {
+    background: var(--aed-primary-light);
+    border-left: 3px solid var(--aed-primary);
+    padding-left: 13px;
+  }
+  .session-meta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 5px;
+  }
+  .session-id-small {
+    font-size: 11px;
+    color: var(--aed-light);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: 0.02em;
+  }
+  .session-time {
+    font-size: 11px;
+    color: var(--aed-light);
+    font-weight: 500;
+  }
+  .session-preview {
+    font-size: 13px;
+    color: var(--aed-text-secondary);
+    font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 7px;
+  }
+  .session-tags {
+    display: flex; gap: 5px; flex-wrap: wrap; align-items: center;
+  }
+  .tag {
+    font-size: 9.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .tag-live {
+    background: var(--aed-accent-soft);
+    color: var(--aed-accent);
+  }
+  .tag-saved {
+    background: var(--aed-bg-alt);
+    color: var(--aed-muted);
+  }
+  .tag-intent {
+    background: var(--aed-primary-light);
+    color: var(--aed-primary);
+  }
+  .tag-journey {
+    background: var(--aed-warn-soft);
+    color: var(--aed-warn);
+  }
+  .tag-error {
+    background: var(--aed-sale-bg);
+    color: var(--aed-sale);
+  }
+
+  .session-list-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--aed-light);
+    font-size: 13px;
+  }
+
+  /*  Detail pane */
+  .detail-pane {
+    flex: 1; overflow-y: auto;
+    padding: 24px;
+    background: var(--aed-bg);
+  }
+  .detail-empty {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%;
+    color: var(--aed-light);
+    font-size: 14px;
+    text-align: center;
+  }
+  .detail-empty .icon-wrap {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--aed-primary-light);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--aed-primary);
+    margin-bottom: 16px;
+    opacity: 0.7;
+  }
+
+  .detail-header {
+    background: var(--aed-card);
+    border: 1px solid var(--aed-border);
+    border-radius: var(--aed-radius);
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    box-shadow: var(--aed-shadow-xs);
+  }
+  .detail-header-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .detail-header-id {
+    font-size: 13px;
+    color: var(--aed-text);
+    font-weight: 600;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: 0.02em;
+  }
+  .detail-header-info {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--aed-muted);
+  }
+  .detail-header-info span.info-val {
+    color: var(--aed-text);
+    font-weight: 600;
+  }
+  .btn-delete-session {
+    padding: 7px 14px;
+    background: var(--aed-sale-bg);
+    color: var(--aed-sale);
+    border: 1px solid rgba(220, 53, 69, 0.25);
+    border-radius: var(--aed-radius-pill);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-delete-session:hover {
+    background: rgba(220, 53, 69, 0.16);
+  }
+
+  /* Transcript — match the widget chat-bubble styling */
+  .transcript {
+    background: var(--aed-card);
+    border: 1px solid var(--aed-border);
+    border-radius: var(--aed-radius);
+    padding: 22px;
+    margin-bottom: 16px;
+    box-shadow: var(--aed-shadow-xs);
+  }
+  .transcript h3 {
+    font-size: 13px;
+    color: var(--aed-text);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .turn-row {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 10px 0;
+  }
+  .msg {
+    padding: 11px 16px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    white-space: pre-wrap; word-break: break-word;
+    max-width: 80%;
+  }
+  /* User bubble: blue, aligned right — mirrors the widget */
+  .msg-user {
+    background: var(--aed-primary);
+    color: #fff;
+    align-self: flex-end;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.20);
+  }
+  /* Bot bubble: white card, aligned left — mirrors the widget */
+  .msg-bot {
+    background: var(--aed-card);
+    color: var(--aed-text);
+    align-self: flex-start;
+    border: 1px solid var(--aed-border);
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: var(--aed-shadow-xs);
+  }
+
+  /*  Per-turn debug accordion */
+  .debug-block {
+    background: var(--aed-card);
+    border: 1px solid var(--aed-border);
+    border-radius: var(--aed-radius-sm);
+    margin-bottom: 10px;
+    box-shadow: var(--aed-shadow-xs);
+    overflow: hidden;
+  }
+  .debug-head {
+    padding: 12px 16px;
+    background: var(--aed-card);
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    user-select: none;
+    transition: background 0.1s;
+  }
+  .debug-head:hover { background: var(--aed-bg); }
+  .debug-block.open .debug-head {
+    background: var(--aed-primary-light);
+    border-bottom: 1px solid var(--aed-border);
+  }
+  .debug-head-left { display: flex; gap: 10px; align-items: center; }
+  .debug-turn-num {
+    font-size: 11.5px; font-weight: 700;
+    color: var(--aed-primary);
+    background: var(--aed-primary-light);
+    padding: 3px 9px;
+    border-radius: var(--aed-radius-pill);
+  }
+  .debug-summary {
+    font-size: 12.5px;
+    color: var(--aed-text-secondary);
+  }
+  .debug-chevron {
+    color: var(--aed-muted);
+    transition: transform 0.15s;
+  }
+  .debug-block.open .debug-chevron { transform: rotate(90deg); color: var(--aed-primary); }
+
+  .debug-body {
+    padding: 16px;
+    display: none;
+    font-size: 12.5px;
+    color: var(--aed-text-secondary);
+  }
+  .debug-block.open .debug-body { display: block; }
+
+  .debug-grid {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 7px 16px;
+    font-size: 11.5px;
+  }
+  .debug-grid .k {
+    color: var(--aed-muted);
+    font-weight: 500;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  .debug-grid .v {
+    color: var(--aed-text);
+    word-break: break-all;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  .debug-grid .v.ok { color: var(--aed-accent); font-weight: 600; }
+  .debug-grid .v.bad { color: var(--aed-sale); font-weight: 600; }
+
+  .debug-section { margin-top: 16px; }
+  .debug-section h4 {
+    font-size: 10.5px;
+    color: var(--aed-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .json-block {
+    background: var(--aed-bg);
+    border: 1px solid var(--aed-border);
+    border-radius: var(--aed-radius-sm);
+    padding: 11px 14px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--aed-text);
+    overflow-x: auto;
+    max-height: 240px; overflow-y: auto;
+    white-space: pre;
+  }
+  .product-shown {
+    display: flex; gap: 12px; align-items: center;
+    padding: 10px 12px;
+    background: var(--aed-bg);
+    border-radius: var(--aed-radius-sm);
+    margin-bottom: 6px;
+    font-size: 12.5px;
+  }
+  .product-shown .pid {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color: var(--aed-primary);
+    font-weight: 700;
+  }
+
+  /*  Sync page */
+  .sync-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .sync-card {
+    background: var(--aed-card);
+    border: 1px solid var(--aed-border);
+    border-radius: var(--aed-radius);
+    padding: 20px 22px;
+    box-shadow: var(--aed-shadow-xs);
+  }
+  .sync-card h3 {
+    font-size: 13px;
+    color: var(--aed-text);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .sync-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0;
+    font-size: 12.5px;
+    border-bottom: 1px solid var(--aed-border);
+  }
+  .sync-row:last-child { border-bottom: none; }
+  .sync-row .k { color: var(--aed-muted); }
+  .sync-row .v {
+    color: var(--aed-text);
+    font-weight: 600;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+  }
+  .sync-actions {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .btn-action {
+    padding: 9px 18px;
+    background: var(--aed-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--aed-radius-pill);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.2);
+  }
+  .btn-action:hover {
+    background: var(--aed-primary-dk);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(11, 94, 215, 0.3);
+  }
+  .btn-action.secondary {
+    background: var(--aed-bg-alt);
+    color: var(--aed-text-secondary);
+    box-shadow: none;
+  }
+  .btn-action.secondary:hover {
+    background: var(--aed-border);
+    transform: translateY(-1px);
+  }
+
+  /*  Toast */
+  .toast {
+    position: fixed; top: 20px; right: 20px;
+    padding: 12px 22px;
+    border-radius: var(--aed-radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--aed-primary);
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(11, 94, 215, 0.35);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 1000;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error {
+    background: var(--aed-sale);
+    box-shadow: 0 6px 24px rgba(220, 53, 69, 0.35);
+  }
+
+  /*  Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--aed-border);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--aed-border-mid); }
+
+  /*  Loading */
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--aed-light);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <div class="brand-mark" aria-hidden="true">
+      <!-- Medical heart — same icon language as the live AED Leader site -->
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+    </div>
+    <div class="header-title">AED Leader Admin</div>
+    <div class="header-sub">aedleader.com</div>
+  </div>
+  <div class="header-actions">
+    <span class="badge-live"><span class="dot"></span><span id="liveCount">0 live</span></span>
+    <button class="btn btn-header" onclick="refresh()">Refresh</button>
+    <select id="globalSite" class="site-switch" onchange="setGlobalSite(this.value)" title="Scope every tab to one site">
+      <option value="">🌐 All sites</option>
+      <option value="aedleader">AED Leader</option>
+      <option value="responseready">Response Ready</option>
+      <option value="cpr1">CPR1</option>
+      <option value="mdsimedical">MDSI</option>
+      <option value="aedtotalsolution">AED Total Solution</option>
+    </select>
+    <button class="btn btn-logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <button class="nav-tab active" data-page="dashboard" onclick="switchPage('dashboard', this)">Dashboard</button>
+  <button class="nav-tab" data-page="sessions" onclick="switchPage('sessions', this)">Conversations <span class="count" id="sessionTabCount">0</span></button>
+  <button class="nav-tab" data-page="leads" onclick="switchPage('leads', this)">Leads <span class="count" id="leadTabCount">0</span></button>
+  <button class="nav-tab" data-page="engagement" onclick="switchPage('engagement', this)">Engagement</button>
+  <button class="nav-tab" data-page="conversions" onclick="switchPage('conversions', this)">Conversions</button>
+  <button class="nav-tab" data-page="sync" onclick="switchPage('sync', this)">Product sync</button>
+</div>
+
+<!--  Dashboard page -->
+<div class="page active" id="page-dashboard">
+  <h2 class="section-title">Overview</h2>
+  <div class="stats-grid" id="statsGrid">
+    <div class="loading">Loading stats...</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <div class="breakdown-card">
+      <h3>Customer intent breakdown</h3>
+      <div id="intentBreakdown"><div class="loading">Loading...</div></div>
+    </div>
+    <div class="breakdown-card">
+      <h3>Buying journey stage</h3>
+      <div id="journeyBreakdown"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<!--  Sessions page -->
+<div class="page" id="page-sessions">
+  <div class="split">
+    <div class="session-side">
+      <div class="session-side-head">
+        <input type="text" class="session-search" id="sessionSearch" placeholder="Search messages or session id...">
+        <div class="session-filters">
+          <button class="filter-pill active" data-filter="all" onclick="setFilter('all', this)">All</button>
+          <button class="filter-pill" data-filter="live" onclick="setFilter('live', this)">Live now</button>
+          <button class="filter-pill" data-filter="hallucinated" onclick="setFilter('hallucinated', this)">Bot errors</button>
+        </div>
+      </div>
+      <div class="session-list" id="sessionList">
+        <div class="loading">Loading conversations...</div>
+      </div>
+    </div>
+    <div class="detail-pane" id="detailPane">
+      <div class="detail-empty">
+        <div class="icon-wrap">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+            <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+          </svg>
+        </div>
+        <div>Select a conversation to view the transcript and pipeline trace</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--  Engagement page -->
+<div class="page" id="page-leads">
+  <div class="detail-card" style="margin: 18px 24px;">
+    <h3 style="margin-bottom: 10px;">Captured leads</h3>
+    <div class="session-list" id="leadList" style="max-height:none;">
+      <div class="loading">Loading leads...</div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-engagement">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h2 class="section-title" style="margin-bottom: 0;">Chip clicks &amp; inquiry funnel</h2>
+    <div class="session-filters" style="margin-top: 0;">
+      <button class="filter-pill active" data-window="7d" onclick="setEngagementWindow('7d', this)">7 days</button>
+      <button class="filter-pill" data-window="24h" onclick="setEngagementWindow('24h', this)">24 hours</button>
+      <button class="filter-pill" data-window="30d" onclick="setEngagementWindow('30d', this)">30 days</button>
+      <button class="filter-pill" data-window="all" onclick="setEngagementWindow('all', this)">All time</button>
+    </div>
+  </div>
+  <div class="stats-grid" id="engagementStatsGrid">
+    <div class="loading">Loading engagement data...</div>
+  </div>
+  <div class="breakdown-card">
+    <h3>Reach &amp; engagement — loaded → opened → chatted <span style="font-weight:400; color: var(--aed-muted);">(of people who saw the widget, how many opened it and started chatting)</span></h3>
+    <div id="engagementReach"><div class="loading">Loading...</div></div>
+  </div>
+  <div class="breakdown-card">
+    <h3>Clicks per chip</h3>
+    <div id="engagementChipBreakdown"><div class="loading">Loading...</div></div>
+  </div>
+  <div class="breakdown-card">
+    <h3>Inquiry funnel — chip click → form button click → kept chatting</h3>
+    <div id="engagementFunnel"><div class="loading">Loading...</div></div>
+  </div>
+  <div class="breakdown-card">
+    <h3>Answers rated 👎 — needs attention <span style="font-weight:400; color: var(--aed-muted);">(the exact messages a customer marked unhelpful)</span></h3>
+    <div id="engagementNegativeFeedback"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!--  Conversions page -->
+<div class="page" id="page-conversions">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h2 class="section-title" style="margin-bottom: 0;">Sales attributed to chat</h2>
+    <div class="session-filters" style="margin-top: 0;">
+      <button class="filter-pill active" data-window="7d" onclick="setConversionsWindow('7d', this)">7 days</button>
+      <button class="filter-pill" data-window="24h" onclick="setConversionsWindow('24h', this)">24 hours</button>
+      <button class="filter-pill" data-window="30d" onclick="setConversionsWindow('30d', this)">30 days</button>
+      <button class="filter-pill" data-window="all" onclick="setConversionsWindow('all', this)">All time</button>
+    </div>
+  </div>
+  <div id="conversionsBanner"></div>
+  <div class="stats-grid" id="conversionsStatsGrid">
+    <div class="loading">Loading conversion data...</div>
+  </div>
+  <div class="breakdown-card">
+    <h3>Product-link → sale funnel <span style="font-weight:400; color: var(--aed-muted);">(sessions that clicked "View Product", of those how many bought)</span></h3>
+    <div id="conversionsFunnel"><div class="loading">Loading...</div></div>
+  </div>
+  <div class="sync-card" style="margin-top: 16px;">
+    <h3>Orders poll</h3>
+    <div style="font-size: 12.5px; color: var(--aed-muted); margin-bottom: 14px; line-height: 1.55;">
+      Pull recently-modified WooCommerce orders and match chatbot-attributed sales back to conversations.
+      Runs nightly when enabled; trigger it here to test on demand.
+    </div>
+    <div class="sync-actions">
+      <button class="btn-action" onclick="triggerOrdersPoll()">Run orders poll now</button>
+    </div>
+  </div>
+</div>
+
+<!--  Sync page -->
+<div class="page" id="page-sync">
+  <h2 class="section-title">Product catalog sync</h2>
+  <div class="sync-grid">
+    <div class="sync-card" id="syncStatusCard">
+      <h3>Status</h3>
+      <div class="loading">Loading...</div>
+    </div>
+    <div class="sync-card">
+      <h3>Manual triggers</h3>
+      <div style="font-size: 12.5px; color: var(--aed-muted); margin-bottom: 14px; line-height: 1.55;">
+        Run a sync now. <strong>Incremental</strong> polls for products modified since the last run. <strong>Full</strong> reindexes everything and detects deletions.
+      </div>
+      <div class="sync-actions">
+        <button class="btn-action" onclick="triggerSync('incremental')">Incremental sync</button>
+        <button class="btn-action" onclick="triggerSync('full')">Full sync</button>
+        <button class="btn-action secondary" onclick="triggerSync('delete-check')">Delete check only</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+//  State
+let allSessions = [];
+let currentFilter = 'all';
+let currentSite = '';
+
+function setGlobalSite(v) {
+  currentSite = v;
+  // Every tab refetches under the new scope; session detail pane resets so a
+  // cross-site conversation is never left on screen.
+  allSessions = [];
+  currentSessionId = null;
+  const pane = document.getElementById('detailPane');
+  if (pane) pane.innerHTML = '<div class="detail-empty"><div>Select a conversation to inspect.</div></div>';
+  loadStats();
+  loadSessions();
+  loadLeads();
+  loadEngagement();
+  loadConversions();
+  if (typeof loadSync === 'function') loadSync();
+}
+let currentSessionId = null;
+let searchQuery = '';
+
+//  Auth-aware fetch
+async function api(path, opts = {}) {
+  // Universal site scope: every admin/sync call carries the selected site.
+  if (currentSite && (path.startsWith('/api/admin/') || path.startsWith('/sync/'))) {
+    path += (path.includes('?') ? '&' : '?') + 'site=' + encodeURIComponent(currentSite);
+  }
+  opts.credentials = 'same-origin';
+  if (opts.body && !opts.headers) opts.headers = {};
+  if (opts.body && !opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
+  const resp = await fetch(path, opts);
+  if (resp.status === 401) {
+    window.location.href = '/admin/login';
+    throw new Error('unauthorized');
+  }
+  return resp;
+}
+
+//  Toast
+let toastTimer = null;
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.toggle('error', isError);
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+//  Page switching
+function switchPage(pageName, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + pageName).classList.add('active');
+  btn.classList.add('active');
+  if (pageName === 'sync') loadSync();
+  if (pageName === 'sessions' && allSessions.length === 0) loadSessions();
+  if (pageName === 'leads') loadLeads();
+  if (pageName === 'engagement') loadEngagement();
+  if (pageName === 'conversions') loadConversions();
+}
+
+//  Engagement
+let engagementWindow = '7d';
+
+function setEngagementWindow(w, btn) {
+  engagementWindow = w;
+  document.querySelectorAll('#page-engagement .filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  loadEngagement();
+}
+
+async function loadEngagement() {
+  try {
+    const resp = await api('/api/admin/engagement?window=' + encodeURIComponent(engagementWindow));
+    if (!resp.ok) throw new Error('engagement fetch failed');
+    const data = await resp.json();
+    renderEngagement(data);
+  } catch (e) {
+    document.getElementById('engagementStatsGrid').innerHTML = '<div class="loading">Failed to load engagement data.</div>';
+  }
+}
+
+function renderEngagement(d) {
+  const totalClicks = Object.values(d.chip_clicks || {}).reduce((a, b) => a + b, 0);
+  const totalForm = Object.values(d.form_clicks || {}).reduce((a, b) => a + b, 0);
+  const totalLinks = Object.values(d.link_clicks || {}).reduce((a, b) => a + b, 0);
+  const distinctSessions = Object.values(d.sessions_with_chip || {}).reduce((a, b) => a + b, 0);
+  const csatPct = (d.csat == null) ? '—' : (d.csat * 100).toFixed(0) + '%';
+  const csatClass = (d.csat == null) ? '' : (d.csat >= 0.8 ? 'green' : (d.csat >= 0.5 ? 'warn' : 'error'));
+
+  document.getElementById('engagementStatsGrid').innerHTML = `
+    <div class="stat"><div class="label">CSAT (answer rating)</div><div class="value ${csatClass}">${csatPct}</div><div class="sub">👍 ${d.feedback_up || 0} · 👎 ${d.feedback_down || 0} (${d.feedback_responses || 0} rated)</div></div>
+    <div class="stat"><div class="label">Total chip clicks</div><div class="value">${totalClicks}</div><div class="sub">window: ${escapeHtml(d.window || '')}</div></div>
+    <div class="stat"><div class="label">Form-button clicks</div><div class="value green">${totalForm}</div><div class="sub">CTA inside info cards</div></div>
+    <div class="stat"><div class="label">Product-link clicks</div><div class="value green">${totalLinks}</div><div class="sub">"View Product" → shop (${d.sessions_with_link || 0} sessions)</div></div>
+    <div class="stat"><div class="label">Distinct sessions</div><div class="value">${distinctSessions}</div><div class="sub">unique users who clicked any chip</div></div>
+    <div class="stat"><div class="label">Total events</div><div class="value">${d.total_events || 0}</div><div class="sub">across all event types</div></div>
+  `;
+
+  const pct = (x) => (x == null) ? '—' : (x * 100).toFixed(1) + '%';
+  const reachEl = document.getElementById('engagementReach');
+  const loaded = d.widgets_loaded || 0;
+  if (loaded === 0) {
+    reachEl.innerHTML = '<div style="font-size: 12.5px; color: var(--aed-light); padding: 8px 0;">No widget-load events in this window yet.</div>';
+  } else {
+    const reachRows = [
+      ['Widgets loaded (saw it)', String(loaded)],
+      ['Opened', (d.widgets_opened || 0) + '  (' + pct(d.open_rate) + ' open rate)'],
+      ['Chats started', (d.chats_started || 0) + '  (' + pct(d.engagement_rate) + ' engagement)'],
+      ['Opened but silent (abandoned)', (d.opened_but_silent || 0) + '  (' + pct(d.opened_but_silent_rate) + ')'],
+    ];
+    reachEl.innerHTML = reachRows.map(([k, v]) =>
+      `<div class="breakdown-row"><span class="breakdown-key">${escapeHtml(k)}</span><span class="breakdown-value">${escapeHtml(v)}</span></div>`
+    ).join('');
+  }
+
+  const negEl = document.getElementById('engagementNegativeFeedback');
+  const negs = d.negative_feedback || [];
+  if (negs.length === 0) {
+    negEl.innerHTML = '<div style="font-size: 12.5px; color: var(--aed-light); padding: 8px 0;">No 👎 in this window. 🎉</div>';
+  } else {
+    negEl.innerHTML = negs.map(n =>
+      `<div class="breakdown-row" style="cursor:${n.session_id ? 'pointer' : 'default'};" ${n.session_id ? `onclick="gotoSession('${escapeHtml(n.session_id)}')"` : ''}>` +
+      `<span class="breakdown-key" style="max-width: 78%;">${escapeHtml(n.preview || '(no preview)')}</span>` +
+      `<span class="breakdown-value">${escapeHtml(shortId(n.session_id))} · #${escapeHtml(String(n.turn || '?'))}</span></div>`
+    ).join('');
+  }
+
+  const chipEntries = Object.entries(d.chip_clicks || {}).sort((a, b) => b[1] - a[1]);
+  const chipEl = document.getElementById('engagementChipBreakdown');
+  if (chipEntries.length === 0) {
+    chipEl.innerHTML = '<div style="font-size: 12.5px; color: var(--aed-light); padding: 8px 0;">No chip clicks in this window yet.</div>';
+  } else {
+    chipEl.innerHTML = chipEntries.map(([k, v]) =>
+      `<div class="breakdown-row"><span class="breakdown-key">${escapeHtml(k.replace(/_/g, ' '))}</span><span class="breakdown-value">${v}</span></div>`
+    ).join('');
+  }
+
+  // Funnel: only meaningful for chips that have form_clicks (currently inquiry).
+  const funnelEl = document.getElementById('engagementFunnel');
+  const funnelRows = [];
+  Object.keys(d.chip_clicks || {}).forEach(chip => {
+    const clicks = d.chip_clicks[chip] || 0;
+    const formClicks = (d.form_clicks || {})[chip] || 0;
+    const sessions = (d.sessions_with_chip || {})[chip] || 0;
+    const kept = (d.sessions_kept_chatting || {})[chip] || 0;
+    if (clicks === 0) return;
+    const ctaRate = sessions > 0 ? ((formClicks / sessions) * 100).toFixed(1) + '%' : '—';
+    const keptRate = sessions > 0 ? ((kept / sessions) * 100).toFixed(1) + '%' : '—';
+    funnelRows.push(
+      `<div class="breakdown-row"><span class="breakdown-key">${escapeHtml(chip.replace(/_/g, ' '))}</span>` +
+      `<span class="breakdown-value" title="${clicks} clicks → ${formClicks} CTA clicks → ${kept}/${sessions} sessions kept chatting">` +
+      `${clicks} clicks · ${ctaRate} CTA · ${keptRate} kept</span></div>`
+    );
+  });
+  if (funnelRows.length === 0) {
+    funnelEl.innerHTML = '<div style="font-size: 12.5px; color: var(--aed-light); padding: 8px 0;">No engagement data in this window yet.</div>';
+  } else {
+    funnelEl.innerHTML = funnelRows.join('');
+  }
+}
+
+//  Conversions
+let conversionsWindow = '7d';
+
+function setConversionsWindow(w, btn) {
+  conversionsWindow = w;
+  document.querySelectorAll('#page-conversions .filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  loadConversions();
+}
+
+async function loadConversions() {
+  try {
+    const resp = await api('/api/admin/conversions?window=' + encodeURIComponent(conversionsWindow));
+    if (!resp.ok) throw new Error('conversions fetch failed');
+    renderConversions(await resp.json());
+  } catch (e) {
+    document.getElementById('conversionsStatsGrid').innerHTML = '<div class="loading">Failed to load conversion data.</div>';
+  }
+}
+
+function renderConversions(d) {
+  const banner = document.getElementById('conversionsBanner');
+  if (!d.poll_enabled) {
+    banner.innerHTML = '<div style="background: var(--aed-warn-bg, #4a3a1a); color: var(--aed-warn, #e0b050); ' +
+      'border-radius: 8px; padding: 10px 14px; font-size: 12.5px; margin-bottom: 14px;">' +
+      'Nightly orders poll is <strong>disabled</strong>. Set <code>CONVERSIONS_POLL_ENABLED=true</code> ' +
+      '(and enable WooCommerce Order Attribution) to collect data automatically. You can still trigger it manually below.</div>';
+  } else {
+    banner.innerHTML = '';
+  }
+
+  const value = (d.attributed_value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const cur = (d.currencies && d.currencies.length) ? d.currencies.join(', ') : '';
+  const f = d.funnel || {};
+  const lastPolled = d.last_polled ? new Date(d.last_polled).toLocaleString() : 'never';
+
+  document.getElementById('conversionsStatsGrid').innerHTML = `
+    <div class="stat"><div class="label">Attributed sales</div><div class="value green">${d.attributed_sales || 0}</div><div class="sub">window: ${escapeHtml(d.window || '')}</div></div>
+    <div class="stat"><div class="label">Attributed value</div><div class="value green">${escapeHtml(cur)} ${value}</div><div class="sub">paid orders only</div></div>
+    <div class="stat"><div class="label">Matched to a chat</div><div class="value">${d.matched_to_session || 0}</div><div class="sub">${d.channel_only || 0} channel-only (no session)</div></div>
+    <div class="stat"><div class="label">Click → sale rate</div><div class="value">${((f.click_to_sale_rate || 0) * 100).toFixed(1)}%</div><div class="sub">${f.clicked_and_converted || 0}/${f.click_sessions || 0} clicking sessions bought</div></div>
+    <div class="stat"><div class="label">Last poll</div><div class="value" style="font-size: 15px;">${escapeHtml(lastPolled)}</div><div class="sub">${d.poll_enabled ? 'nightly auto' : 'manual only'}</div></div>
+  `;
+
+  const funnelEl = document.getElementById('conversionsFunnel');
+  const rows = [
+    ['Product-link clicks', f.link_click_events || 0],
+    ['Distinct sessions that clicked', f.click_sessions || 0],
+    ['Sessions that converted (matched)', f.converted_sessions || 0],
+    ['Clicked AND converted', f.clicked_and_converted || 0],
+  ];
+  funnelEl.innerHTML = rows.map(([k, v]) =>
+    `<div class="breakdown-row"><span class="breakdown-key">${escapeHtml(k)}</span><span class="breakdown-value">${v}</span></div>`
+  ).join('');
+}
+
+async function triggerOrdersPoll() {
+  toast('Running orders poll...');
+  try {
+    const resp = await api('/sync/trigger/orders', { method: 'POST' });
+    if (!resp.ok) throw new Error('orders poll failed');
+    const r = await resp.json();
+    if (r.skipped) {
+      toast('Orders poll skipped: ' + r.skipped, true);
+    } else {
+      toast('Orders poll complete — ' + (r.chatbot || 0) + ' chatbot order(s) found');
+    }
+    loadConversions();
+  } catch (e) {
+    toast('Orders poll failed', true);
+  }
+}
+
+async function logout() {
+  try { await api('/api/admin/logout', { method: 'POST' }); } catch (e) {}
+  window.location.href = '/admin/login';
+}
+
+//  Helpers
+function formatTime(unixSec) {
+  if (!unixSec) return '—';
+  const date = new Date(unixSec * 1000);
+  const now = Date.now();
+  const diffSec = (now - date.getTime()) / 1000;
+  if (diffSec < 60) return 'just now';
+  if (diffSec < 3600) return Math.floor(diffSec / 60) + 'm ago';
+  if (diffSec < 86400) return Math.floor(diffSec / 3600) + 'h ago';
+  return date.toLocaleDateString();
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function shortId(sid) { return (sid || '').slice(0, 8); }
+
+//  Dashboard
+async function loadStats() {
+  try {
+    const resp = await api('/api/admin/stats');
+    if (!resp.ok) throw new Error('stats fetch failed');
+    const data = await resp.json();
+    renderStats(data);
+  } catch (e) {
+    document.getElementById('statsGrid').innerHTML = '<div class="loading">Failed to load stats.</div>';
+  }
+}
+
+function renderStats(d) {
+  const hallucPct = (d.hallucination_rate * 100).toFixed(2);
+  const hallucClass = d.hallucination_rate > 0.05 ? 'error' : (d.hallucination_rate > 0.01 ? 'warn' : 'green');
+  const llmTime = (d.avg_llm_response_seconds || 0).toFixed(2);
+  // Show end-to-end reply latency over the last seven days.
+  const r7 = d.reply_seconds_7d || {n: 0};
+  const replyClass = r7.mean >= 8 ? 'error' : (r7.mean >= 5 ? 'warn' : 'green');
+  const replyTile = r7.n
+    ? `<div class="value ${replyClass}">${r7.mean.toFixed(1)}s</div><div class="sub">p50 ${r7.p50.toFixed(1)}s · p90 ${r7.p90.toFixed(1)}s · AI step ${llmTime}s</div>`
+    : `<div class="value">—</div><div class="sub">no replies in the last 7 days</div>`;
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat"><div class="label">Total conversations</div><div class="value">${d.total_sessions}</div><div class="sub">${d.live_sessions} live in memory</div></div>
+    <div class="stat"><div class="label">Last 24h</div><div class="value green">${d.sessions_24h}</div><div class="sub">${d.sessions_7d} this week</div></div>
+    <div class="stat"><div class="label">Total turns</div><div class="value">${d.total_turns}</div><div class="sub">~${d.total_sessions ? (d.total_turns / d.total_sessions).toFixed(1) : 0} per conversation</div></div>
+    <div class="stat"><div class="label">Bot errors</div><div class="value ${hallucClass}">${d.total_hallucinations}</div><div class="sub">${hallucPct}% hallucination rate</div></div>
+    <div class="stat"><div class="label">Avg reply time (7 days)</div>${replyTile}</div>
+  `;
+
+  document.getElementById('liveCount').textContent = d.live_sessions + ' live';
+
+  renderBreakdown('intentBreakdown', d.intent_breakdown);
+  renderBreakdown('journeyBreakdown', d.journey_breakdown);
+}
+
+function renderBreakdown(targetId, dict) {
+  const el = document.getElementById(targetId);
+  const entries = Object.entries(dict || {}).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) {
+    el.innerHTML = '<div style="font-size: 12.5px; color: var(--aed-light); padding: 8px 0;">No data yet — chats need to happen first.</div>';
+    return;
+  }
+  el.innerHTML = entries.map(([k, v]) =>
+    `<div class="breakdown-row"><span class="breakdown-key">${escapeHtml(k.replace(/_/g, ' '))}</span><span class="breakdown-value">${v}</span></div>`
+  ).join('');
+}
+
+//  Sessions list
+async function loadLeads() {
+  const list = document.getElementById('leadList');
+  try {
+    const resp = await api('/api/admin/leads');
+    if (!resp.ok) throw new Error('leads fetch failed');
+    const data = await resp.json();
+    document.getElementById('leadTabCount').textContent = data.count;
+    if (!data.leads.length) {
+      list.innerHTML = '<div class="session-list-empty">No leads captured yet.</div>';
+      return;
+    }
+    list.innerHTML = data.leads.map(r => {
+      const l = r.lead || {};
+      const tags = [];
+      if (r.is_live) tags.push('<span class="tag tag-live">Live</span>');
+      if (r.tenant && r.tenant !== 'aedleader') tags.push('<span class="tag tag-journey">' + escapeHtml(r.tenant) + '</span>');
+      // A reachable lead has an email address or phone number.
+      tags.push(r.contactable
+        ? '<span class="tag tag-live" title="email or phone on file">Contactable</span>'
+        : '<span class="tag" title="no email or phone yet">Not contactable</span>');
+      const flags = l.flags || {};
+      Object.keys(flags).forEach(k => {
+        tags.push('<span class="tag" style="background:#fff3cd;color:#7a5a00;" title="' + escapeHtml(String(flags[k])) + '">' + escapeHtml(k.replace(/_/g, ' ')) + '</span>');
+      });
+      const who = escapeHtml(l.name || '(no name)') + (l.company ? ' <span style="color:var(--aed-muted);font-weight:400;">· ' + escapeHtml(l.company) + '</span>' : '');
+      const notes = (l.notes || []).map(n => '<li>' +
+        (n.kind ? '<span style="color:var(--aed-muted);">' + escapeHtml(n.kind.replace(/_/g, ' ')) + ':</span> ' : '') +
+        escapeHtml(n.text || '') + '</li>').join('');
+      return '<div class="session-item" onclick="gotoSession(&#39;' + r.session_id + '&#39;)">' +
+        '<div class="session-meta-row"><span class="session-id-small">' + who + '</span>' +
+        '<span class="session-time">' + formatTime(r.last_activity) + '</span></div>' +
+        '<div class="session-preview">' + escapeHtml(l.email || '') + (l.email && l.phone ? ' · ' : '') + escapeHtml(l.phone || '') + '</div>' +
+        (notes ? '<ul class="lead-notes" style="margin:6px 0 0 16px;font-size:12px;color:var(--aed-text);">' + notes + '</ul>' : '') +
+        '<div class="session-tags">' + tags.join('') + '</div></div>';
+    }).join('');
+  } catch (e) {
+    list.innerHTML = '<div class="session-list-empty">Failed to load leads.</div>';
+  }
+}
+
+async function loadSessions() {
+  try {
+    const resp = await api('/api/admin/sessions');
+    if (!resp.ok) throw new Error('sessions fetch failed');
+    const data = await resp.json();
+    allSessions = data.sessions || [];
+    document.getElementById('sessionTabCount').textContent = data.count || 0;
+    renderSessionList();
+  } catch (e) {
+    document.getElementById('sessionList').innerHTML = '<div class="session-list-empty">Failed to load conversations.</div>';
+  }
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  renderSessionList();
+}
+
+function renderSessionList() {
+  const list = document.getElementById('sessionList');
+  let filtered = allSessions;
+  if (currentFilter === 'live') {
+    filtered = filtered.filter(s => s.is_live);
+  } else if (currentFilter === 'hallucinated') {
+    filtered = filtered.filter(s => (s.hallucinations || 0) > 0);
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(s =>
+      (s.session_id || '').toLowerCase().includes(q) ||
+      (s.first_message || '').toLowerCase().includes(q) ||
+      (s.last_message || '').toLowerCase().includes(q)
+    );
+  }
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="session-list-empty">No conversations match.</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(s => {
+    const tags = [];
+    if (s.is_live) tags.push('<span class="tag tag-live">Live</span>');
+    else tags.push('<span class="tag tag-saved">Saved</span>');
+    if (s.last_intent) tags.push(`<span class="tag tag-intent">${escapeHtml(s.last_intent)}</span>`);
+    if (s.last_journey) tags.push(`<span class="tag tag-journey">${escapeHtml(s.last_journey)}</span>`);
+    if ((s.hallucinations || 0) > 0) tags.push(`<span class="tag tag-error">${s.hallucinations} error${s.hallucinations > 1 ? 's' : ''}</span>`);
+    if (s.tenant && s.tenant !== 'aedleader') tags.push(`<span class="tag tag-journey">${escapeHtml(s.tenant)}</span>`);
+    const isActive = s.session_id === currentSessionId ? ' active' : '';
+    return `<div class="session-item${isActive}" onclick="openSession('${s.session_id}')">
+      <div class="session-meta-row">
+        <span class="session-id-small">${shortId(s.session_id)}</span>
+        <span class="session-time">${formatTime(s.last_activity)}</span>
+      </div>
+      <div class="session-preview">${escapeHtml(s.first_message || '(no message yet)')}</div>
+      <div class="session-tags">${tags.join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+//  Session detail
+async function openSession(sessionId) {
+  currentSessionId = sessionId;
+  const pane = document.getElementById('detailPane');
+  pane.innerHTML = '<div class="loading">Loading conversation...</div>';
+  try {
+    const resp = await api('/api/admin/sessions/' + encodeURIComponent(sessionId));
+    if (resp.status === 404) {
+      pane.innerHTML = '<div class="detail-empty"><div>Conversation not found.</div></div>';
+      return;
+    }
+    if (!resp.ok) throw new Error('detail fetch failed');
+    const data = await resp.json();
+    renderSessionDetail(data);
+    renderSessionList();  // re-render list to show active highlight
+  } catch (e) {
+    pane.innerHTML = '<div class="detail-empty"><div>Failed to load conversation.</div></div>';
+  }
+}
+
+// Jump from another tab (e.g. a 👎 in Engagement) straight to a conversation.
+function gotoSession(sessionId) {
+  const tab = document.querySelector('.nav-tab[data-page="sessions"]');
+  if (tab) switchPage('sessions', tab);
+  openSession(sessionId);
+}
+
+function renderSessionDetail(s) {
+  const pane = document.getElementById('detailPane');
+  const history = s.history || [];
+  const debugLog = s.debug_log || [];
+
+  const transcriptHtml = history.length === 0
+    ? '<div style="text-align: center; color: var(--aed-light); font-size: 13px; padding: 20px;">No messages yet.</div>'
+    : history.map(m => {
+        const cls = m.role === 'user' ? 'msg msg-user' : 'msg msg-bot';
+        return `<div class="turn-row" style="align-items: ${m.role === 'user' ? 'flex-end' : 'flex-start'};">
+          <div class="${cls}">${escapeHtml(m.content)}</div>
+        </div>`;
+      }).join('');
+
+  const debugHtml = debugLog.length === 0
+    ? '<div style="text-align: center; color: var(--aed-light); font-size: 13px; padding: 20px;">No debug entries.</div>'
+    : debugLog.map((d, idx) => renderDebugBlock(d, idx)).join('');
+
+  pane.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-header-top">
+        <div class="detail-header-id">${escapeHtml(s.session_id)}</div>
+        <button class="btn-delete-session" onclick="deleteSession('${s.session_id}')">Delete conversation</button>
+      </div>
+      <div class="detail-header-info">
+        <div>Created <span class="info-val">${s.created_at ? new Date(s.created_at).toLocaleString() : '—'}</span></div>
+        <div>Last active <span class="info-val">${formatTime(s.last_activity)}</span></div>
+        <div>Messages <span class="info-val">${history.length}</span></div>
+        <div>Turns <span class="info-val">${debugLog.length}</span></div>
+        <div>Status <span class="info-val">${s.is_live ? 'Live' : 'Saved'}</span></div>
+      </div>
+    </div>
+
+    <div class="transcript">
+      <h3>Conversation</h3>
+      <div style="display: flex; flex-direction: column; gap: 0;">${transcriptHtml}</div>
+    </div>
+
+    <div>
+      <h3 style="font-size: 13px; color: var(--aed-text); font-weight: 700; margin-bottom: 14px;">Pipeline trace · ${debugLog.length} turn${debugLog.length === 1 ? '' : 's'}</h3>
+      ${debugHtml}
+    </div>
+  `;
+}
+
+function renderDebugBlock(d, idx) {
+  const analysis = d.analysis || {};
+  const search = d.search || {};
+  const guardrails = d.guardrails || {};
+  const timing = d.timing || {};
+  const products = d.products_shown || [];
+  const halluc = guardrails.hallucinated || 0;
+  const totalTime = timing.total != null ? timing.total + 's' : '—';
+
+  const summaryParts = [];
+  if (analysis.intent) summaryParts.push(escapeHtml(analysis.intent));
+  if (search.products_found != null) summaryParts.push(search.products_found + ' found');
+  if (halluc > 0) summaryParts.push(`<span style="color: var(--aed-sale); font-weight: 600;">${halluc} hallucinated</span>`);
+  summaryParts.push(totalTime);
+
+  return `<div class="debug-block" id="debug-${idx}">
+    <div class="debug-head" onclick="document.getElementById('debug-${idx}').classList.toggle('open')">
+      <div class="debug-head-left">
+        <span class="debug-turn-num">Turn ${d.turn || idx + 1}</span>
+        <span class="debug-summary">${summaryParts.join(' · ')}</span>
+      </div>
+      <span class="debug-chevron">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </span>
+    </div>
+    <div class="debug-body">
+      <div class="debug-grid">
+        <span class="k">user_message</span><span class="v">${escapeHtml(d.user_message || '—')}</span>
+        <span class="k">intent</span><span class="v">${escapeHtml(formatVal(analysis.intent))}</span>
+        <span class="k">journey_stage</span><span class="v">${escapeHtml(formatVal(analysis.journey_stage))}</span>
+        <span class="k">search_query</span><span class="v">${escapeHtml(formatVal(analysis.search_query))}</span>
+        <span class="k">filters</span><span class="v">${escapeHtml(JSON.stringify(analysis.filters || {}))}</span>
+        <span class="k">products_found</span><span class="v">${search.products_found ?? '—'}</span>
+        <span class="k">filters_used</span><span class="v">${escapeHtml(JSON.stringify(search.filters_used || {}))}</span>
+        <span class="k">was_relaxed</span><span class="v ${search.was_relaxed ? 'bad' : ''}">${search.was_relaxed ? 'YES' : 'no'}</span>
+        <span class="k">cards_requested</span><span class="v">${guardrails.cards_requested ?? 0}</span>
+        <span class="k">cards_passed</span><span class="v ok">${guardrails.cards_passed ?? 0}</span>
+        <span class="k">hallucinated</span><span class="v ${halluc > 0 ? 'bad' : 'ok'}">${halluc}</span>
+        <span class="k">timing.search</span><span class="v">${timing.search ?? '—'}s</span>
+        <span class="k">timing.llm</span><span class="v">${timing.llm_response ?? '—'}s</span>
+        <span class="k">timing.total</span><span class="v">${timing.total ?? '—'}s</span>
+      </div>
+      ${products.length > 0 ? `
+        <div class="debug-section">
+          <h4>Products shown · ${products.length}</h4>
+          ${products.map(p => `<div class="product-shown"><span class="pid">#${p.product_id}</span> <span>${escapeHtml(p.name || '')}</span> <span style="margin-left: auto; color: var(--aed-muted); font-weight: 600;">$${p.price ?? '?'} · ${escapeHtml(p.brand || '')}</span></div>`).join('')}
+        </div>
+      ` : ''}
+      ${d.response_preview ? `
+        <div class="debug-section">
+          <h4>Bot response preview</h4>
+          <div class="json-block">${escapeHtml(d.response_preview)}</div>
+        </div>
+      ` : ''}
+      <div class="debug-section">
+        <h4>Raw analysis JSON</h4>
+        <div class="json-block">${escapeHtml(JSON.stringify(analysis, null, 2))}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function formatVal(v) {
+  if (v == null) return '—';
+  if (Array.isArray(v)) return '[' + v.join(', ') + ']';
+  return String(v);
+}
+
+async function deleteSession(sessionId) {
+  if (!confirm('Delete this conversation from memory and disk? This cannot be undone.')) return;
+  try {
+    const resp = await api('/api/admin/sessions/' + encodeURIComponent(sessionId), { method: 'DELETE' });
+    if (!resp.ok) throw new Error('delete failed');
+    toast('Conversation deleted');
+    currentSessionId = null;
+    document.getElementById('detailPane').innerHTML = `
+      <div class="detail-empty">
+        <div class="icon-wrap">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+            <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+          </svg>
+        </div>
+        <div>Select a conversation to view the transcript and pipeline trace</div>
+      </div>`;
+    loadSessions();
+  } catch (e) {
+    toast('Delete failed', true);
+  }
+}
+
+//  Search
+document.getElementById('sessionSearch').addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim();
+  renderSessionList();
+});
+
+//  Sync
+async function loadSync() {
+  try {
+    const resp = await api('/sync/status');
+    if (!resp.ok) throw new Error('sync status fetch failed');
+    const data = await resp.json();
+    renderSyncStatus(data);
+  } catch (e) {
+    document.getElementById('syncStatusCard').innerHTML = '<h3>Status</h3><div class="loading">Failed to load sync status.</div>';
+  }
+}
+
+function renderSyncStatus(d) {
+  const card = document.getElementById('syncStatusCard');
+  const rows = [];
+  if (d.last_incremental_sync) rows.push(['Last incremental', new Date(d.last_incremental_sync).toLocaleString()]);
+  if (d.last_full_sync) rows.push(['Last full sync', new Date(d.last_full_sync).toLocaleString()]);
+  if (d.last_deletion_check) rows.push(['Last deletion check', new Date(d.last_deletion_check).toLocaleString()]);
+  if (d.total_syncs != null) rows.push(['Total syncs', d.total_syncs]);
+  if (Array.isArray(d.recent_syncs)) rows.push(['Recent runs tracked', d.recent_syncs.length]);
+  Object.keys(d).forEach(k => {
+    if (['last_incremental_sync', 'last_full_sync', 'last_deletion_check', 'total_syncs', 'recent_syncs', 'recent_results'].includes(k)) return;
+    if (typeof d[k] === 'object') return;
+    rows.push([k.replace(/_/g, ' '), d[k]]);
+  });
+  card.innerHTML = '<h3>Status</h3>' + (rows.length === 0
+    ? '<div class="loading">No sync runs yet.</div>'
+    : rows.map(([k, v]) => `<div class="sync-row"><span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(String(v))}</span></div>`).join(''));
+}
+
+async function triggerSync(kind) {
+  toast('Starting ' + kind + ' sync...');
+  try {
+    const resp = await api('/sync/trigger/' + kind, { method: 'POST' });
+    if (!resp.ok) throw new Error('sync trigger failed');
+    await resp.json();
+    toast(kind + ' sync complete');
+    loadSync();
+  } catch (e) {
+    toast(kind + ' sync failed', true);
+  }
+}
+
+//  Refresh
+function refresh() {
+  loadStats();
+  if (document.getElementById('page-sessions').classList.contains('active')) loadSessions();
+  if (document.getElementById('page-sync').classList.contains('active')) loadSync();
+  if (document.getElementById('page-engagement').classList.contains('active')) loadEngagement();
+  if (document.getElementById('page-conversions').classList.contains('active')) loadConversions();
+  toast('Refreshed');
+}
+
+//  Bootstrap
+loadStats();
+loadSessions();
+setInterval(loadStats, 30000);  // auto-refresh stats every 30s
+</script>
+</body>
+</html>
