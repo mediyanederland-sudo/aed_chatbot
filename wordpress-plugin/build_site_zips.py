@@ -1,9 +1,9 @@
 """Build five branded WordPress plugins from one source template.
 
-Run from this directory: python build_site_zips.py [--site <slug>].
+Run from this directory: python build_site_zips.py [--site <slug>] [--export-sources].
 Each build checks tenant-specific content anchors and rejects leftover base
-store identity, except the shared backend hostname. Generated ZIPs and extracted
-files are build artifacts; edit the template rather than generated copies."""
+store identity, except the shared backend hostname. Edit the template and store
+configuration, then use --export-sources to refresh the four store source folders."""
 
 import argparse
 import io
@@ -11,6 +11,7 @@ import os
 import shutil
 import sys
 import zipfile
+from pathlib import Path, PurePosixPath
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "aedleader-chatbot")
 DIST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dist")
@@ -228,9 +229,40 @@ def extract_zip(zip_path: str) -> None:
         zf.extractall(UNPACKED_DIR)
 
 
+def export_sources(zip_path: str, slug: str) -> None:
+    """Refresh a store source folder without overwriting the shared template."""
+    if slug not in SITES:
+        raise ValueError(f"Unknown site: {slug}")
+    if slug == "aedleader":
+        return
+    parent = Path(TEMPLATE_DIR).resolve().parent
+    target = parent / f"{slug}-chatbot"
+    if target.resolve().parent != parent:
+        raise ValueError(f"Source folder must remain inside {parent}")
+    outputs = {}
+    with zipfile.ZipFile(zip_path) as archive:
+        for name in archive.namelist():
+            parts = PurePosixPath(name).parts
+            if (len(parts) < 2 or parts[0] != target.name
+                    or any(part in {".", ".."} for part in parts)):
+                raise ValueError(f"Unexpected archive member: {name}")
+            path = target.joinpath(*parts[1:])
+            if not path.resolve().is_relative_to(target.resolve()):
+                raise ValueError(f"Archive member leaves source folder: {name}")
+            outputs[path] = archive.read(name)
+    extra = {path for path in target.rglob("*") if path.is_file()} - outputs.keys()
+    if extra:
+        raise ValueError(f"Unexpected files in {target}; review before exporting: {sorted(extra)}")
+    for path, content in outputs.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--site", default=None, help="build one site only (slug)")
+    parser.add_argument("--export-sources", action="store_true",
+                        help="refresh the four branded source folders beside the shared template")
     args = parser.parse_args()
 
     slugs = [args.site] if args.site else list(SITES)
@@ -239,6 +271,8 @@ def main() -> None:
             sys.exit(f"Unknown site '{slug}'. Valid: {', '.join(SITES)}")
         path = build_zip(slug)
         extract_zip(path)
+        if args.export_sources:
+            export_sources(path, slug)
         size = os.path.getsize(path) // 1024
         print(f"built {os.path.basename(path)}  ({size} KB)  [+ unpacked/]")
 
